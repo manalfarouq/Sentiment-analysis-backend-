@@ -1,4 +1,4 @@
 data_db = {
-    "username": "manal", 
-    "password": "12345"
+    "username": "string", 
+    "password": "string"
     }

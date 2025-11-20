@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Header
 from jose import jwt, JWTError
-from app.database.database import data_db
+
 from app.core.config import settings
 
 router = APIRouter(prefix="/data", tags=["Test du token JWT"])
@@ -9,7 +9,7 @@ router = APIRouter(prefix="/data", tags=["Test du token JWT"])
 @router.get("/test")
 def get_data(token: str = Header(...)):
     """
-    Vérifie le token JWT passé directement dans le header Authorization.
+    Vérifie le token JWT passé directement dans le header.
     Format attendu : "<token>"
     """
     try:
@@ -17,4 +17,7 @@ def get_data(token: str = Header(...)):
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
-    return {"data": data_db, "user": payload}
+    return {
+        "message": "Token valid!",
+        "user": payload.get("sub"),
+    }

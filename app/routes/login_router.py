@@ -7,7 +7,7 @@ from app.database.db_connection import get_db_connection
 import bcrypt
 
 
-router = APIRouter(prefix="/auth", tags=["Recevoir un token JWT"])
+router = APIRouter(prefix="/auth", tags=["Login"])
 
 
 @router.post("/login")

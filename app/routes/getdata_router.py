@@ -3,7 +3,7 @@ from jose import jwt, JWTError
 from app.database.database import data_db
 from app.core.config import settings
 
-router = APIRouter(prefix="/data", tags=["Data Retrieval"])
+router = APIRouter(prefix="/data", tags=["Test du token JWT"])
 
 
 @router.get("/test")

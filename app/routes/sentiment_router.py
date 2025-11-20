@@ -4,7 +4,7 @@ from app.schemas.SentimentRequest import SentimentRequest
 from app.auth.token_auth import verify_token 
 
 
-router = APIRouter(prefix="/sentiment", tags=["Sentiment Analysis"])
+router = APIRouter(prefix="/sentiment", tags=["Prediction de Sentiment"])
 
 
 @router.post("/predict")

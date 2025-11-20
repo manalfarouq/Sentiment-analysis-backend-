@@ -20,41 +20,39 @@ Qu'est-ce qui se passe ?
 6. Fermeture : On ferme la connexion (pour ne pas laisser de portes ouvertes)
 """
 
-router = APIRouter(prefix="/register", tags=["User Registration"])
+router = APIRouter(prefix="/register", tags=["Inscription Utilisateur"])
 
 
 @router.post("/register")
 def register(data: user_schema):
     """
-    Inscrit un nouvel utilisateur dans la base de données.
+    Inscrit un nouvel utilisateur
     """
-    # 1. Se connecter à la base de données
+
     conn = get_db_connection()
-    cursor = conn.cursor()  # Un cursor = comme un pointeur pour exécuter des commandes SQL
+    cursor = conn.cursor()
     
     try:
-        # 2. Vérifier si l'utilisateur existe déjà
+        # Vérifier si le username existe
         cursor.execute("SELECT username FROM users WHERE username = %s", (data.username,))
-        
-        if cursor.fetchone():  # Si on trouve quelque chose, l'utilisateur existe déjà
+        if cursor.fetchone():
             raise HTTPException(status_code=400, detail="Username already exists")
         
-        # 3. Hasher (crypter) le mot de passe avant de le stocker
-        hashed_password = bcrypt.hashpw(data.password.encode('utf-8'), bcrypt.gensalt())
-        
-        # 4. Insérer le nouvel utilisateur dans la base
+        # Hasher le mot de passe
+        hashed_password = bcrypt.hashpw(data.password.encode(), bcrypt.gensalt())
+
+        # Insérer dans la base
         cursor.execute(
             "INSERT INTO users (username, password) VALUES (%s, %s)",
-            (data.username, hashed_password.decode('utf-8'))
+            (data.username, hashed_password.decode())
         )
-        conn.commit()  # IMPORTANT : sauvegarder les changements dans la base
-        
+        conn.commit()
+
         return {"message": "User created successfully"}
     
-    except Exception as e:
-        conn.rollback()  # En cas d'erreur, annuler les changements
-        raise HTTPException(status_code=500, detail=str(e))
+    except:
+        raise HTTPException(status_code=500, detail="Server error")
     
     finally:
-        cursor.close()  # Fermer le cursor
-        conn.close()    # Fermer la connexion
+        cursor.close()
+        conn.close()

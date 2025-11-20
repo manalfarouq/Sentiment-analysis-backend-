@@ -11,6 +11,6 @@ def login(data: user_schema):
     if data.username == data_db["username"] and data.password == data_db["password"]:
         # Utiliser settings.SK et settings.ALG
         token = jwt.encode({}, key=settings.SK, algorithm=settings.ALG)
-        return {"access_token": token}  
+        return {"token": token}  
     else:
         raise HTTPException(status_code=401, detail="Invalid username or password")

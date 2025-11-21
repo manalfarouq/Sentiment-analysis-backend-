@@ -34,22 +34,27 @@ jobs:
           # Créer l'utilisateur et la base
           sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
           sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
+          
+          # Donner les droits sur le schéma public
+          sudo -u postgres psql -d $DB_NAME -c "GRANT ALL ON SCHEMA public TO $DB_USER;"
 
-          # Créer la table 'users' et donner tous les droits à l'utilisateur
+          # Créer la table 'users' et donner tous les droits
           sudo -u postgres psql -d $DB_NAME -c "
-          CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            username VARCHAR(50) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL
-          );
-          GRANT ALL PRIVILEGES ON TABLE users TO $DB_USER;"
+            CREATE TABLE IF NOT EXISTS users (
+              id SERIAL PRIMARY KEY,
+              username VARCHAR(100) UNIQUE NOT NULL,
+              password VARCHAR(255) NOT NULL,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            GRANT ALL PRIVILEGES ON TABLE users TO $DB_USER;
+            GRANT USAGE, SELECT ON SEQUENCE users_id_seq TO $DB_USER;
+          "
 
       - name: Installer les dépendances
         run: |
           python -m pip install --upgrade pip
           pip install poetry
           poetry install --no-root
-          poetry add --dev pytest-cov
 
       - name: Exécuter les tests
         run: |

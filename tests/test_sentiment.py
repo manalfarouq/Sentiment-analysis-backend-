@@ -1,8 +1,27 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
+from app.database.db_connection import get_db_connection
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def cleanup():
+    """
+    Nettoie la base de données après chaque test
+    """
+    yield
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM users WHERE username = 'sentiment_test_user'")
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception:
+        pass
 
 
 def get_valid_token():
@@ -43,11 +62,26 @@ def test_predict_sentiment_without_token():
     assert response.status_code == 422
 
 
-def test_predict_sentiment_with_valid_token():
+def test_predict_sentiment_with_valid_token(mocker):
     """
     Test : Prédire avec un token valide → doit marcher
     """
     token = get_valid_token()
+    
+    # Mock de l'API HuggingFace
+    mock_response = mocker.Mock()
+    mock_response.json.return_value = [
+        [
+            {"label": "5 stars", "score": 0.85},
+            {"label": "4 stars", "score": 0.10},
+            {"label": "3 stars", "score": 0.03},
+            {"label": "2 stars", "score": 0.01},
+            {"label": "1 star", "score": 0.01}
+        ]
+    ]
+    mock_response.status_code = 200
+    
+    mocker.patch('requests.post', return_value=mock_response)
     
     response = client.post(
         "/sentiment/predict",

@@ -61,8 +61,11 @@ def login(data: LoginRequest):
         return {"token": token}
 
     #? Si un problème inattendu arrive → erreur serveur (sans montrer le détail)
-    except:
-        raise HTTPException(status_code=500, detail="Server error")
+    except HTTPException:  # ← IMPORTANT : relancer les HTTPException
+        raise
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
     finally:
         # Toujours fermer la connexion à la base

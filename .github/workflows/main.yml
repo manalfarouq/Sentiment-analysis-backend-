@@ -6,11 +6,15 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      USER_DB: test_user
-      PASSWORD: test_pass
-      HOST: localhost
-      PORT: 5432
-      DATABASE: test_db
+      SK: test_sk
+      ALG: HS256
+      HF_API_TOKEN: test_token
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: test_db
+      DB_USER: test_user
+      DB_PASSWORD: test_pass
 
     steps:
       - name: Checkout du code
@@ -27,14 +31,15 @@ jobs:
           sudo apt-get install postgresql postgresql-contrib -y
           sudo service postgresql start
           # Créer l'utilisateur et la base de test
-          sudo -u postgres psql -c "CREATE USER $USER_DB WITH PASSWORD '$PASSWORD';"
-          sudo -u postgres psql -c "CREATE DATABASE $DATABASE OWNER $USER_DB;"
+          sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
+          sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
 
       - name: Installer les dépendances
         run: |
           python -m pip install --upgrade pip
           pip install poetry
           poetry install --no-root
+          poetry add --dev pytest-cov
 
       - name: Exécuter les tests
         run: |

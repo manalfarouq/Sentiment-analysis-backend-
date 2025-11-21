@@ -20,7 +20,7 @@ Qu'est-ce qui se passe ?
 6. Fermeture : On ferme la connexion (pour ne pas laisser de portes ouvertes)
 """
 
-router = APIRouter(prefix="/register", tags=["User Registration"])
+router = APIRouter(prefix="/register", tags=["SignUp"])
 
 
 @router.post("/register")

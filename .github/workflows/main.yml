@@ -25,14 +25,24 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Installer PostgreSQL
+      - name: Installer PostgreSQL et créer DB/utilisateur/table
         run: |
           sudo apt-get update
           sudo apt-get install postgresql postgresql-contrib -y
           sudo service postgresql start
-          # Créer l'utilisateur et la base de test
+
+          # Créer l'utilisateur et la base
           sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
           sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
+
+          # Créer la table 'users' et donner tous les droits à l'utilisateur
+          sudo -u postgres psql -d $DB_NAME -c "
+          CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(50) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL
+          );
+          GRANT ALL PRIVILEGES ON TABLE users TO $DB_USER;"
 
       - name: Installer les dépendances
         run: |
@@ -40,15 +50,6 @@ jobs:
           pip install poetry
           poetry install --no-root
           poetry add --dev pytest-cov
-
-      - name: Créer les tables de test
-        run: |
-          sudo -u postgres psql -d $DB_NAME -c "
-          CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            username VARCHAR(50) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL
-          );"
 
       - name: Exécuter les tests
         run: |

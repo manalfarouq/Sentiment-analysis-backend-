@@ -41,6 +41,15 @@ jobs:
           poetry install --no-root
           poetry add --dev pytest-cov
 
+      - name: Créer les tables de test
+        run: |
+          sudo -u postgres psql -d $DB_NAME -c "
+          CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(50) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL
+          );"
+
       - name: Exécuter les tests
         run: |
           PYTHONPATH=$(pwd) poetry run pytest --cov=app --maxfail=1 -v

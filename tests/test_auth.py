@@ -8,30 +8,17 @@ client = TestClient(app)
 
 
 @pytest.fixture(autouse=True)
-def cleanup():
+def clean_users_table():
     """
-    Nettoie la base de données après chaque test
-    pour éviter les conflits entre tests
+    Cette fixture est exécutée automatiquement avant chaque test.
+    Elle vide la table 'users' pour éviter les conflits.
     """
-    yield  # Le test s'exécute ici
-    
-    # Après chaque test, supprimer les utilisateurs de test
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            DELETE FROM users 
-            WHERE username IN (
-                'test_user', 'duplicate_user', 'login_user', 
-                'wrong_pass_user', 'nonexistent_user'
-            )
-        """)
-        conn.commit()
-        cursor.close()
-        conn.close()
-    except Exception:
-        pass  # Si la base n'existe pas encore, ignorer
-
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM users;")  # Supprime tous les utilisateurs
+    conn.commit()
+    cur.close()
+    conn.close()
 
 def test_register_new_user():
     """

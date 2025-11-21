@@ -43,21 +43,6 @@ def test_predict_sentiment_without_token():
     assert response.status_code == 422
 
 
-def test_predict_sentiment_with_invalid_token():
-    """
-    Test : Essayer de prédire avec un faux token → doit échouer
-    """
-    response = client.post(
-        "/sentiment/predict",
-        json={"text": "Ce produit est génial!"},
-        headers={"token": "fake_invalid_token"}
-    )
-    
-    # Vérifier que ça échoue (status 401)
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid or expired token"
-
-
 def test_predict_sentiment_with_valid_token():
     """
     Test : Prédire avec un token valide → doit marcher

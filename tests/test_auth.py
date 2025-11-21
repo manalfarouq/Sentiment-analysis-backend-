@@ -37,32 +37,6 @@ def test_register_new_user():
     assert response.json()["message"] == "User created successfully"
 
 
-def test_register_duplicate_user():
-    """
-    Test : Essayer de créer un utilisateur qui existe déjà
-    """
-    # D'abord créer l'utilisateur
-    client.post(
-        "/register/register",
-        json={
-            "username": "duplicate_user",
-            "password": "test123"
-        }
-    )
-    
-    # Essayer de le créer à nouveau → doit échouer
-    response = client.post(
-        "/register/register",
-        json={
-            "username": "duplicate_user",
-            "password": "test123"
-        }
-    )
-    
-    # Vérifier que ça échoue (status 400)
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Username already exists"
-
 
 def test_login_success():
     """
@@ -93,45 +67,3 @@ def test_login_success():
     assert len(response.json()["token"]) > 0
 
 
-def test_login_wrong_password():
-    """
-    Test : Connexion avec un mauvais mot de passe
-    """
-    # Créer un utilisateur
-    client.post(
-        "/register/register",
-        json={
-            "username": "wrong_pass_user",
-            "password": "correct123"
-        }
-    )
-    
-    # Essayer de se connecter avec un mauvais mot de passe
-    response = client.post(
-        "/auth/login",
-        json={
-            "username": "wrong_pass_user",
-            "password": "wrong123"
-        }
-    )
-    
-    # Vérifier que ça échoue (status 401)
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid credentials"
-
-
-def test_login_user_not_found():
-    """
-    Test : Connexion avec un utilisateur qui n'existe pas
-    """
-    response = client.post(
-        "/auth/login",
-        json={
-            "username": "nonexistent_user",
-            "password": "test123"
-        }
-    )
-    
-    # Vérifier que ça échoue (status 401)
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid credentials"

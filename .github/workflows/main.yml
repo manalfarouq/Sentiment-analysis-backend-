@@ -36,18 +36,15 @@ jobs:
           sudo apt-get install -y postgresql postgresql-contrib
           sudo service postgresql start
           
-          # Wait for PostgreSQL to be ready
           until sudo -u postgres psql -c '\q'; do
             echo "Waiting for PostgreSQL..."
             sleep 1
           done
           
-          # Create user and database
           sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
           sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
           sudo -u postgres psql -d $DB_NAME -c "GRANT ALL ON SCHEMA public TO $DB_USER;"
           
-          # Create users table with all permissions
           sudo -u postgres psql -d $DB_NAME <<-EOF
             CREATE TABLE users (
               id SERIAL PRIMARY KEY,
@@ -65,7 +62,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
-        run: poetry install --no-interaction --no-ansi
+        run: poetry install --no-root --no-interaction --no-ansi
 
       - name: Run tests with coverage
         run: |

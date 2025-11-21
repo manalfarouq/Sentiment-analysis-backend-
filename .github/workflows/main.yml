@@ -1,46 +1,55 @@
 name: Run Unit Tests
 
-on: [push, pull_request]
+on: 
+  push:
+    branches: [ main, feature/* ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    
     env:
-      SK: test_sk
+      SK: test_secret_key_for_ci
       ALG: HS256
-      HF_API_TOKEN: test_token
+      HF_API_TOKEN: test_hf_token
       ACCESS_TOKEN_EXPIRE_MINUTES: 30
       DB_HOST: localhost
       DB_PORT: 5432
       DB_NAME: test_db
       DB_USER: test_user
-      DB_PASSWORD: test_pass
+      DB_PASSWORD: test_password
 
     steps:
-      - name: Checkout du code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Installer Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Installer PostgreSQL et créer DB/utilisateur/table
+      - name: Install and configure PostgreSQL
         run: |
           sudo apt-get update
-          sudo apt-get install postgresql postgresql-contrib -y
+          sudo apt-get install -y postgresql postgresql-contrib
           sudo service postgresql start
-
-          # Créer l'utilisateur et la base
+          
+          # Wait for PostgreSQL to be ready
+          until sudo -u postgres psql -c '\q'; do
+            echo "Waiting for PostgreSQL..."
+            sleep 1
+          done
+          
+          # Create user and database
           sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
           sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;"
-          
-          # Donner les droits sur le schéma public
           sudo -u postgres psql -d $DB_NAME -c "GRANT ALL ON SCHEMA public TO $DB_USER;"
-
-          # Créer la table 'users' et donner tous les droits
-          sudo -u postgres psql -d $DB_NAME -c "
-            CREATE TABLE IF NOT EXISTS users (
+          
+          # Create users table with all permissions
+          sudo -u postgres psql -d $DB_NAME <<-EOF
+            CREATE TABLE users (
               id SERIAL PRIMARY KEY,
               username VARCHAR(100) UNIQUE NOT NULL,
               password VARCHAR(255) NOT NULL,
@@ -48,19 +57,16 @@ jobs:
             );
             GRANT ALL PRIVILEGES ON TABLE users TO $DB_USER;
             GRANT USAGE, SELECT ON SEQUENCE users_id_seq TO $DB_USER;
-          "
+          EOF
 
-      - name: Installer les dépendances
+      - name: Install Poetry
         run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry install --no-root
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Exécuter les tests
-        run: |
-          PYTHONPATH=$(pwd) poetry run pytest --cov=app --maxfail=1 -v
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-ansi
 
-      - name: Afficher le rapport de couverture
+      - name: Run tests with coverage
         run: |
-          poetry run coverage report
-          poetry run coverage xml
+          PYTHONPATH=$(pwd) poetry run pytest --cov=app --cov-report=term --cov-report=xml --maxfail=1 -v

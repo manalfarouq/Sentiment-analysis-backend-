@@ -10,11 +10,7 @@ app = FastAPI(title="Sentiment Analysis API")
 # Configuration CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",  # Pour le développement local
-        "https://sentiment-analysis-frontend-vert.vercel.app",  # Ton URL Vercel
-        "https://*.vercel.app",  # Accepte tous les subdomains Vercel
-    ],
+    allow_origins=["*"],  # URL du frontend
     allow_credentials=True,
     allow_methods=["*"],  # Autorise toutes les méthodes (GET, POST, etc.)
     allow_headers=["*"],  # Autorise tous les headers

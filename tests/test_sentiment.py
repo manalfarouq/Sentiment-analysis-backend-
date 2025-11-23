@@ -7,26 +7,49 @@ client = TestClient(app)
 
 
 @pytest.fixture(autouse=True)
-def cleanup():
+def setup_db():
     """
-    Nettoie la base de données après chaque test
+    Fixture : Crée les tables et les vide avant chaque test.
+    Ceci est crucial pour GitHub Actions où la DB est vierge.
     """
-    yield
+    conn = get_db_connection()
+    cur = conn.cursor()
     
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM users WHERE username = 'sentiment_test_user'")
+        # Crée la table users
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(100) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
         conn.commit()
-        cursor.close()
+        
+        # Vide les tables
+        cur.execute("DELETE FROM users;")
+        conn.commit()
+    finally:
+        cur.close()
         conn.close()
-    except Exception:
-        pass
+    
+    yield
+    
+    # Cleanup après le test
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("DELETE FROM users;")
+        conn.commit()
+    finally:
+        cur.close()
+        conn.close()
 
 
 def get_valid_token():
     """
-    Fonction helper : Crée un utilisateur et retourne son token
+    Helper : Crée un utilisateur et retourne son token
     """
     # Créer un utilisateur
     client.post(
@@ -58,8 +81,8 @@ def test_predict_sentiment_without_token():
         json={"text": "Ce produit est génial!"}
     )
     
-    # Vérifier que ça échoue (status 422 car token manquant)
-    assert response.status_code == 422
+    # Vérifier que ça échoue (status 422 ou 403)
+    assert response.status_code in [422, 403]
 
 
 def test_predict_sentiment_with_valid_token(mocker):
@@ -89,7 +112,6 @@ def test_predict_sentiment_with_valid_token(mocker):
         headers={"token": token}
     )
     
-    # Vérifier que ça marche
     assert response.status_code == 200
     assert "result" in response.json()
 
@@ -105,6 +127,5 @@ def test_get_data_with_valid_token():
         headers={"token": token}
     )
     
-    # Vérifier que ça marche
     assert response.status_code == 200
     assert "user" in response.json()

@@ -672,7 +672,6 @@ psql -h localhost -U sentiment_user -d sentiment_db
 
 ## 🔗 Liens Utiles
 
-- **Backend Repository** : [GitHub](https://github.com/manalfarouq/Sentiment-analysis-backend)
 - **Frontend Repository** : [GitHub](https://github.com/manalfarouq/Sentiment-analysis-frontend)
 - **Frontend Live** : [https://sentiment-analysis-frontend-vert.vercel.app/](https://sentiment-analysis-frontend-vert.vercel.app/)
 - **Backend API** : [https://tasentimentxp-backend-nnql.onrender.com](https://tasentimentxp-backend-nnql.onrender.com)

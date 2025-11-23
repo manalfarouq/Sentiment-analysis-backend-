@@ -10,7 +10,7 @@ app = FastAPI(title="Sentiment Analysis API")
 # Configuration CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # URL du frontend
+    allow_origins=["*"],  # URL du frontend
     allow_credentials=True,
     allow_methods=["*"],  # Autorise toutes les méthodes (GET, POST, etc.)
     allow_headers=["*"],  # Autorise tous les headers
@@ -18,7 +18,7 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return {"message": "Bienvenue dans Sentiment Analysis API!"}
+    return {"message": "Bienvenue dans TasentimentXP!"}
 
 # Inclure les routers
 app.include_router(login_router)

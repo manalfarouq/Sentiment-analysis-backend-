@@ -5,7 +5,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-24+-2496ED)](https://www.docker.com/)
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen)](https://github.com/votre-username/sentiment-analysis-backend/actions)
-[![Coverage](https://img.shields.io/badge/coverage-87%25-yellowgreen)](https://codecov.io)
+
 
 
 
@@ -336,7 +336,7 @@ sequenceDiagram
     Client->>API: POST /auth/register<br/>{username, password}
     API->>API: Hash password avec bcrypt
     API->>DB: INSERT INTO users
-    DB-->>API: ✅ User créé
+    DB-->>API:  User créé
     API-->>Client: 200 OK
 
     Note over Client,DB: 2️ CONNEXION & JWT

@@ -13,3 +13,6 @@ passlib[bcrypt]
 bcrypt
 transformers
 torch
+pytest
+pytest-cov
+pytest-asyncio

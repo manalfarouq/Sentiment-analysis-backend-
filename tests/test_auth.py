@@ -3,22 +3,49 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.database.db_connection import get_db_connection
 
-# Créer un client de test
 client = TestClient(app)
 
 
 @pytest.fixture(autouse=True)
-def clean_users_table():
+def setup_db():
     """
-    Cette fixture est exécutée automatiquement avant chaque test.
-    Elle vide la table 'users' pour éviter les conflits.
+    Fixture : Crée les tables et les vide avant chaque test.
+    Ceci est crucial pour GitHub Actions où la DB est vierge.
     """
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("DELETE FROM users;")  # Supprime tous les utilisateurs
-    conn.commit()
-    cur.close()
-    conn.close()
+    
+    try:
+        # Crée la table users si elle n'existe pas
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(100) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
+        conn.commit()
+        
+        # Vide la table
+        cur.execute("DELETE FROM users;")
+        conn.commit()
+    finally:
+        cur.close()
+        conn.close()
+    
+    yield
+    
+    # Cleanup après le test
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("DELETE FROM users;")
+        conn.commit()
+    finally:
+        cur.close()
+        conn.close()
+
 
 def test_register_new_user():
     """
@@ -32,10 +59,8 @@ def test_register_new_user():
         }
     )
     
-    # Vérifier que ça marche (status 200)
     assert response.status_code == 200
     assert response.json()["message"] == "User created successfully"
-
 
 
 def test_login_success():
@@ -60,10 +85,6 @@ def test_login_success():
         }
     )
     
-    # Vérifier que ça marche
     assert response.status_code == 200
     assert "token" in response.json()
-    # Bonus : vérifier que le token n'est pas vide
     assert len(response.json()["token"]) > 0
-
-

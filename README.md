@@ -332,14 +332,14 @@ sequenceDiagram
     participant DB
     participant HF as HuggingFace
 
-    Note over Client,DB: 1️⃣ INSCRIPTION
+    Note over Client,DB: 1️ INSCRIPTION
     Client->>API: POST /auth/register<br/>{username, password}
     API->>API: Hash password avec bcrypt
     API->>DB: INSERT INTO users
     DB-->>API: ✅ User créé
     API-->>Client: 200 OK
 
-    Note over Client,DB: 2️⃣ CONNEXION & JWT
+    Note over Client,DB: 2️ CONNEXION & JWT
     Client->>API: POST /auth/login<br/>{username, password}
     API->>DB: SELECT user WHERE username=?
     DB-->>API: User data
@@ -347,7 +347,7 @@ sequenceDiagram
     API->>API: Générer JWT token<br/>(expire dans 60min)
     API-->>Client: 200 + {token: "eyJ..."}
 
-    Note over Client,HF: 3️⃣ ENDPOINT PROTÉGÉ
+    Note over Client,HF: 3️ ENDPOINT PROTÉGÉ
     Client->>API: POST /predict<br/>Header: token=eyJ...
     API->>API: Décoder & vérifier JWT
     alt Token valide

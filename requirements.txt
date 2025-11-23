@@ -1,7 +1,7 @@
-fastapi 
-uvicorn[standard] 
+fastapi
+uvicorn[standard]
 pydantic
-python-multipart 
+python-multipart
 python-dotenv
 sqlalchemy
 psycopg2-binary
@@ -11,10 +11,7 @@ requests
 python-jose[cryptography]
 passlib[bcrypt]
 bcrypt
-transformers
-torch
 pytest
 pytest-cov
 pytest-asyncio
-python-dotenv
 pytest-mock

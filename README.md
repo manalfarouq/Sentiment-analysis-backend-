@@ -480,7 +480,7 @@ python3 pytest -v
 
 ---
 
-## ⚠️ Limites et Considérations du Service IA
+## Limites et Considérations du Service IA
 
 ### Limites de l'API HuggingFace Inference
 

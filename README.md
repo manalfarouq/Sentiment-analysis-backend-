@@ -9,7 +9,7 @@
 
 Backend de l'application **TasentimentXP** : une API RESTful sécurisée qui utilise l'intelligence artificielle pour analyser le sentiment de textes (positif, neutre, négatif).
 
-L'API intègre le modèle BERT multilingue de HuggingFace ([nlptown/bert-base-multilingual-uncased-sentiment](https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentiment)) et implémente une authentification JWT robuste.
+L'API intègre le modèle BERT multilingue de HuggingFace et implémente une authentification JWT robuste.
 
 ---
 

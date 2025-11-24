@@ -1,4 +1,4 @@
-# TasentimentXP - Backend API
+# zoroXP - Backend API
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB)](https://www.python.org/)
